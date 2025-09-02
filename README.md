@@ -11,12 +11,21 @@ AUTH_GITHUB_SECRET=
 ARCJET_KEY=
 
 AWS_ACCESS_KEY_ID=tigris
+
 AWS_SECRET_ACCESS_KEY=tigris
+
 AWS_ENDPOINT_URL_S3=https://fly.storage.tigris.dev
+
 AWS_ENDPOINT_URL_IAM=https://iam.storage.dev
+
 AWS_REGION=auto
+
 NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES=buildemy-lmsbucket
+
 STRIPE_SECRET_KEY=
+
 STRIPE_WEBHOOK_SECRET=
+
 SMTP_USER=gmail
+
 SMTP_PASS=app-password
