@@ -1,36 +1,22 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+env configuration
 
-## Getting Started
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=
 
-First, run the development server:
+DATABASE_URL=postgresql://neondb_owner:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+AUTH_GITHUB_CLIENT_ID=
+AUTH_GITHUB_SECRET=
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ARCJET_KEY=
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+AWS_ACCESS_KEY_ID=tigris
+AWS_SECRET_ACCESS_KEY=tigris
+AWS_ENDPOINT_URL_S3=https://fly.storage.tigris.dev
+AWS_ENDPOINT_URL_IAM=https://iam.storage.dev
+AWS_REGION=auto
+NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES=buildemy-lmsbucket
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+SMTP_USER=gmail
+SMTP_PASS=app-password
