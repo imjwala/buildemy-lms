@@ -7,6 +7,7 @@ import {
   IconFileAi,
   IconFileDescription,
   IconHelp,
+  IconListDetails,
   IconSearch,
   IconSettings,
   IconUsers,
@@ -35,6 +36,11 @@ const data = {
       url: "/dashboard",
       icon: IconDashboard,
     },
+      {
+          title: "Courses",
+          url: "/admin/courses",
+          icon: IconListDetails,
+        },
   ],
   navClouds: [
     {
@@ -124,7 +130,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
