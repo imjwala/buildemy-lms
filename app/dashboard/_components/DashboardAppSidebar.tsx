@@ -37,7 +37,7 @@ const data = {
       icon: IconDashboard,
     },
       {
-          title: "Courses",
+          title: "Manage Courses",
           url: "/admin/courses",
           icon: IconListDetails,
         },
@@ -90,23 +90,23 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
+  // navSecondary: [
+  //   {
+  //     title: "Settings",
+  //     url: "#",
+  //     icon: IconSettings,
+  //   },
+  //   {
+  //     title: "Get Help",
+  //     url: "#",
+  //     icon: IconHelp,
+  //   },
+  //   {
+  //     title: "Search",
+  //     url: "#",
+  //     icon: IconSearch,
+  //   },
+  // ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
