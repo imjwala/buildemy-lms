@@ -57,7 +57,7 @@ export async function CreateCouse(values: CourseSchemaType): Promise<ApiResponse
       name: validation.data.title,
       description: validation.data.smallDescription,
       default_price_data: {
-        currency: "usd",
+        currency: "npr",
         unit_amount: validation.data.price * 100,
       }
     })

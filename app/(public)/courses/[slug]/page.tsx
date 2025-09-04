@@ -177,7 +177,7 @@ const SlugPage = async({ params }: iAppProps) => {
                   <span className='text-2xl font-bold text-primary'>
                     {new Intl.NumberFormat('en-US', {
                       style: "currency",
-                      currency: "USD",
+                      currency: "NPR",
                     }).format(course.price)}
                   </span>
                 </div>

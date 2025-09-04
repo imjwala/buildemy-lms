@@ -282,7 +282,7 @@ const CourseCreationPage = () => {
                   name="price"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Price ($)</FormLabel>
+                      <FormLabel>Price (NPR)</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Price"
