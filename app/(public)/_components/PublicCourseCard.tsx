@@ -17,13 +17,16 @@ export const PublicCourseCard = ({ data }: iAppProps) => {
 
   return (
     <Card className="group relative py-0 gap-0">
-      <Badge className="absolute top-2 right-2 z-10">{data.level}</Badge>
+      <Badge className="absolute top-2 left-2 z-10">{data.level}</Badge>
+      <Badge className="absolute top-2 right-2 z-10">
+        NPR.{data.price}
+      </Badge>
       <Image
         src={thumbnailUrl}
         alt={data.title}
         width={600}
         height={400}
-        className="w-full rounded-t-xl aspect-video h-full object-cover"
+        className="w-full rounded-t-xl aspect-video h-full object-cover cursor-pointer"
       />
 
       <CardContent className="p-4">
