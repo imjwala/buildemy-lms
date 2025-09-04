@@ -16,15 +16,24 @@ export default function CoursesList({ initialCourses }: CoursesListProps) {
   // Fuse.js options
   const fuse = new Fuse(initialCourses, {
     keys: ["title", "smallDescription", "category"],
-    threshold: 0.3, // lower = stricter, higher = more fuzzy
+    threshold: 0.3, // controls fuzziness
   });
 
   useEffect(() => {
     if (!searchTerm) {
       setFilteredCourses(initialCourses);
     } else {
-      const results = fuse.search(searchTerm);
-      setFilteredCourses(results.map(r => r.item));
+      // Perform fuzzy search
+      const results = fuse.search(searchTerm).map(r => r.item);
+
+      // Filter to only include items where any field starts with the search term
+      const startsWithResults = results.filter(course =>
+        course.title.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+        course.smallDescription.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+        course.category.toLowerCase().startsWith(searchTerm.toLowerCase())
+      );
+
+      setFilteredCourses(startsWithResults);
     }
   }, [searchTerm, initialCourses]);
 
