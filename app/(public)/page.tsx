@@ -1,7 +1,10 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
 
 interface FeatureProps {
   title: string;
@@ -13,7 +16,7 @@ const features: FeatureProps[] = [
   {
     title: "Comprehensive Courses",
     description:
-      "Access a wide range of carefully courses designed by indrustry experts.",
+      "Access a wide range of carefully courses designed by industry experts.",
     icon: "📚",
   },
   {
@@ -37,30 +40,39 @@ const features: FeatureProps[] = [
 ];
 
 export default function Home() {
+  const { data: session, isPending } = authClient.useSession();
+  const isLoggedIn = !!session;
+
   return (
     <>
       <section className="relative py-20">
         <div className="flex flex-col items-center justify-center space-y-8">
           <Badge variant="outline">
-            Buildemy-The Future of Online Education
+            Buildemy - The Future of Online Education
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-center">
             Elevate your Learning Experience
           </h1>
           <p className="max-w-[700px] text-muted-foreground text-center md:text-xl">
             Discover a new way to learn with our modern, interactive learning
             management system. Access high-quality courses anytime, anywhere.
           </p>
+
           <div className="flex flex-col sm:flex-row gap-4 mt-8">
+           
             <Link href="/courses" className={buttonVariants({ size: "lg" })}>
               Explore Courses
             </Link>
-            <Link
-              href="/login"
-              className={buttonVariants({ size: "lg", variant: "outline" })}
-            >
-              Sign In
-            </Link>
+
+            {/* Sign In only if not logged in */}
+            {!isPending && !isLoggedIn && (
+              <Link
+                href="/login"
+                className={buttonVariants({ size: "lg", variant: "outline" })}
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </section>
