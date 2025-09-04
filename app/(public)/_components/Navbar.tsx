@@ -8,23 +8,18 @@ import { authClient } from "@/lib/auth-client";
 import { buttonVariants } from "@/components/ui/button";
 import { UserDropdown } from "./UserDropdown";
 
-const navigationItems = [
-  {
-    name: "Home",
-    href: "/",
-  },
-  {
-    name: "Courses",
-    href: "/courses",
-  },
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-  },
-];
-
 export const Navbar = () => {
   const { data: session, isPending } = authClient.useSession();
+
+  // Decide dashboard link based on user role
+  const dashboardLink =
+    session?.user?.role === "admin" ? "/admin" : "/dashboard";
+
+  const navigationItems = [
+    { name: "Home", href: "/" },
+    { name: "Courses", href: "/courses" },
+    { name: "Dashboard", href: dashboardLink },
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border bg-background/95 backdrop-blur-[backdrop-filter]:bg-background/60">
@@ -34,7 +29,7 @@ export const Navbar = () => {
           <span className="font-bold">Buildemy.</span>
         </Link>
 
-        {/* desktop navigation*/}
+        {/* desktop navigation */}
         <nav className="hidden md:flex md:flex-1 md:items-center md:justify-between">
           <div className="flex items-center space-x-2">
             {navigationItems.map((item) => (
