@@ -1,41 +1,75 @@
-"use client"
+"use client";
 
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { courseCategories, courseLevels, courseSchema, CourseSchemaType, courseStatus } from "@/lib/zodSchemas"
-import { ArrowLeftIcon, Loader2, PlusIcon, SparkleIcon } from "lucide-react"
-import Link from "next/link"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { 
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  courseCategories,
+  courseLevels,
+  courseSchema,
+  CourseSchemaType,
+  courseStatus,
+} from "@/lib/zodSchemas";
+import { ArrowLeftIcon, Loader2, PlusIcon, SparkleIcon } from "lucide-react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
   Form,
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import slugify from "slugify"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RichTextEditor } from "@/components/rich-text-editor/Editor"
-import { Uploader } from "@/components/file-uploader/Uploader"
-import { useTransition } from "react"
-import { tryCatch } from "@/hooks/try-catch"
-import { CreateCouse } from "./actions"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import { useConfetti } from "@/hooks/use-confetti"
-
-
-
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import slugify from "slugify";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RichTextEditor } from "@/components/rich-text-editor/Editor";
+import { Uploader } from "@/components/file-uploader/Uploader";
+import { useTransition } from "react";
+import { tryCatch } from "@/hooks/try-catch";
+import { CreateCouse } from "./actions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useConfetti } from "@/hooks/use-confetti";
+import { getTeachersAction } from "./get-teachers-action";
+import { useEffect, useState } from "react";
 
 const CourseCreationPage = () => {
-
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const { triggerConfetti } = useConfetti();
+  const [teachers, setTeachers] = useState<
+    Array<{ id: string; name: string; email: string }>
+  >([]);
+  const [teachersLoading, setTeachersLoading] = useState(true);
+  const [teacherSearch, setTeacherSearch] = useState("");
+
+  // Filter teachers based on search term
+  const filteredTeachers = teachers.filter(
+    (teacher) =>
+      teacher.name.toLowerCase().includes(teacherSearch.toLowerCase()) ||
+      teacher.email.toLowerCase().includes(teacherSearch.toLowerCase())
+  );
+
+  // Handle teacher selection and clear search
+  const handleTeacherChange = (teacherId: string) => {
+    form.setValue("teacherId", teacherId);
+    setTeacherSearch(""); // Clear search when teacher is selected
+  };
 
   const form = useForm<CourseSchemaType>({
     resolver: zodResolver(courseSchema),
@@ -50,69 +84,106 @@ const CourseCreationPage = () => {
       status: "Draft",
       slug: "",
       smallDescription: "",
-    }
+      teacherId: "",
+    },
   });
 
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        setTeachersLoading(true);
+        const result = await getTeachersAction();
+        if (result.success) {
+          setTeachers(result.data);
+        } else {
+          console.error(
+            "Error fetching teachers:",
+            (result as { error: string }).error
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching teachers:", error);
+      } finally {
+        setTeachersLoading(false);
+      }
+    };
+    fetchTeachers();
+  }, []);
+
   const onSubmit = (values: CourseSchemaType) => {
+    console.log("Form submitted with values:", values);
+
+    if (!values.teacherId) {
+      toast.error("Please select a teacher");
+      return;
+    }
+
     startTransition(async () => {
-      const {data:result, error} = await tryCatch(CreateCouse(values));
-      
-      if(error){
+      const { data: result, error } = await tryCatch(CreateCouse(values));
+
+      if (error) {
         toast.error("An unexpected error occurred");
-        return
+        return;
       }
 
-      if(result.status === "success"){
+      if (result.status === "success") {
         toast.success(result.message);
         triggerConfetti();
-        form.reset();
+        form.reset({
+          title: "",
+          description: "",
+          filekey: "",
+          price: 0,
+          duration: 0,
+          level: "Beginner",
+          category: "Development",
+          status: "Draft",
+          slug: "",
+          smallDescription: "",
+          teacherId: "",
+        });
         router.push("/admin/courses");
-      }else if(result.status === "error"){
-        toast.error(result.message)
+      } else if (result.status === "error") {
+        toast.error(result.message);
       }
-    })
+    });
   };
 
   return (
     <>
       <div className="flex items-center gap-4">
-        <Link 
-          href="/admin/courses" 
+        <Link
+          href="/admin/courses"
           className={buttonVariants({
             variant: "outline",
-            size: "icon"
+            size: "icon",
           })}
         >
-          <ArrowLeftIcon className="size-4"/>
+          <ArrowLeftIcon className="size-4" />
         </Link>
 
-        <h1 className="text-2xl font-bold">
-          Create Courses
-        </h1>
+        <h1 className="text-2xl font-bold">Create Courses</h1>
       </div>
 
-     <Card>
-       <CardHeader>
-         <CardTitle>Basic Information</CardTitle>
-         <CardDescription>
-          Provide basic information about the course.
-         </CardDescription>
-       </CardHeader>
+      <Card>
+        <CardHeader>
+          <CardTitle>Basic Information</CardTitle>
+          <CardDescription>
+            Provide basic information about the course.
+          </CardDescription>
+        </CardHeader>
 
-       <CardContent>
+        <CardContent>
           <Form {...form}>
             <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-              <FormField 
-                control={form.control}    
-                name="title"              
-                render={({ field }) => (  
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Title"
-                        {...field}
-                      />
+                      <Input placeholder="Title" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -121,16 +192,13 @@ const CourseCreationPage = () => {
 
               <div className="flex items-end gap-4">
                 <FormField
-                  control={form.control}    
-                  name="slug"              
-                  render={({ field }) => (  
+                  control={form.control}
+                  name="slug"
+                  render={({ field }) => (
                     <FormItem className="w-full">
                       <FormLabel>Slug</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Slug"
-                          {...field}
-                        />
+                        <Input placeholder="Slug" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -140,11 +208,11 @@ const CourseCreationPage = () => {
                 <Button
                   type="button"
                   className="w-fit"
-                  onClick={(() => {
+                  onClick={() => {
                     const titleValue = form.getValues("title");
                     const slug = slugify(titleValue);
-                    form.setValue("slug", slug, {shouldValidate: true});
-                  })}
+                    form.setValue("slug", slug, { shouldValidate: true });
+                  }}
                 >
                   Generate Slug <SparkleIcon className="ml-1" size={16} />
                 </Button>
@@ -189,9 +257,9 @@ const CourseCreationPage = () => {
                   <FormItem className="w-full">
                     <FormLabel>Thumbnail image</FormLabel>
                     <FormControl>
-                      <Uploader 
-                        onChange={field.onChange}   
-                        value={field.value}         
+                      <Uploader
+                        onChange={field.onChange}
+                        value={field.value}
                         fileTypeAccepted="image"
                       />
                     </FormControl>
@@ -207,9 +275,9 @@ const CourseCreationPage = () => {
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormLabel>Category</FormLabel>
-                      <Select 
+                      <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}  
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -282,13 +350,9 @@ const CourseCreationPage = () => {
                   name="price"
                   render={({ field }) => (
                     <FormItem className="w-full">
-                      <FormLabel>Price (NPR)</FormLabel>
+                      <FormLabel>Price ($)</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Price"
-                          type="number"
-                          {...field}
-                        />
+                        <Input placeholder="Price" type="number" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -296,34 +360,96 @@ const CourseCreationPage = () => {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Status" />
-                        </SelectTrigger>
-                      </FormControl>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Status</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select Status" />
+                          </SelectTrigger>
+                        </FormControl>
 
-                      <SelectContent>
-                        {courseStatus.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                        <SelectContent>
+                          {courseStatus.map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="teacherId"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormLabel>Teacher</FormLabel>
+                      <Select
+                        onValueChange={handleTeacherChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select Teacher" />
+                          </SelectTrigger>
+                        </FormControl>
+
+                        <SelectContent>
+                          {teachersLoading ? (
+                            <SelectItem value="loading" disabled>
+                              Loading teachers...
+                            </SelectItem>
+                          ) : teachers.length === 0 ? (
+                            <SelectItem value="no-teachers" disabled>
+                              No teachers available
+                            </SelectItem>
+                          ) : (
+                            <>
+                              <div className="p-2">
+                                <Input
+                                  placeholder="Search teachers..."
+                                  value={teacherSearch}
+                                  onChange={(e) =>
+                                    setTeacherSearch(e.target.value)
+                                  }
+                                  className="h-8"
+                                />
+                              </div>
+                              {filteredTeachers.length === 0 ? (
+                                <SelectItem value="no-results" disabled>
+                                  No teachers found
+                                </SelectItem>
+                              ) : (
+                                filteredTeachers.map((teacher) => (
+                                  <SelectItem
+                                    key={teacher.id}
+                                    value={teacher.id}
+                                  >
+                                    {teacher.name} ({teacher.email})
+                                  </SelectItem>
+                                ))
+                              )}
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <Button type="submit" disabled={isPending}>
                 {isPending ? (
@@ -331,7 +457,7 @@ const CourseCreationPage = () => {
                     Creating...
                     <Loader2 className="animate-spin ml-1" />
                   </>
-                ):(
+                ) : (
                   <>
                     Create Course <PlusIcon className="ml-1" size={16} />
                   </>
@@ -339,10 +465,10 @@ const CourseCreationPage = () => {
               </Button>
             </form>
           </Form>
-       </CardContent>
-     </Card>
+        </CardContent>
+      </Card>
     </>
-  )
-}
+  );
+};
 
-export default CourseCreationPage
+export default CourseCreationPage;

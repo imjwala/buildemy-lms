@@ -1,20 +1,27 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
-import { authClient } from "@/lib/auth-client"
-import { Loader2 } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useState, useTransition } from "react"
-import { toast } from "sonner"
-
-
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { authClient } from "@/lib/auth-client";
+import { Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 const VerifyRequest = () => {
-
   const router = useRouter();
-  const [otp, setOtp] = useState("");                         
+  const [otp, setOtp] = useState("");
   const [emailPending, startTransition] = useTransition();
   const params = useSearchParams();
   const email = params.get("email") as string;
@@ -22,40 +29,39 @@ const VerifyRequest = () => {
 
   const verifyOtp = () => {
     startTransition(async () => {
-      await authClient.signIn.emailOtp({                      
+      await authClient.signIn.emailOtp({
         email: email,
         otp: otp,
-        fetchOptions: {                                       
+        fetchOptions: {
           onSuccess: () => {
-            toast.success('Email Verified')
-            router.push("/")                                  
+            toast.success("Email Verified! You can now access your dashboard.");
+            router.push("/dashboard");
           },
           onError: (error) => {
-            toast.error("Error verifying email/OTP")          
-          }
-        }
-      })
-    })
-  }
+            toast.error("Error verifying email/OTP");
+          },
+        },
+      });
+    });
+  };
 
   return (
     <Card className="w-full mx-auto">
       <CardHeader className="text-center">
-        <CardTitle className="text-xl">
-          Please check your email
-        </CardTitle>
+        <CardTitle className="text-xl">Please check your email</CardTitle>
 
         <CardDescription>
-          We have sent a verification email code yo your email address. Please open the email and paste the code below.
+          We have sent a verification email code yo your email address. Please
+          open the email and paste the code below.
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
         <div className="flex flex-col items-center space-y-2">
-          <InputOTP 
-            maxLength={6} 
-            className="gap-2" 
-            value={otp} 
+          <InputOTP
+            maxLength={6}
+            className="gap-2"
+            value={otp}
             onChange={(value) => setOtp(value)}
           >
             <InputOTPGroup>
@@ -69,12 +75,14 @@ const VerifyRequest = () => {
               <InputOTPSlot index={5} />
             </InputOTPGroup>
           </InputOTP>
-          <p className="text-sm text-muted-foreground">Enter the 6 digit code sent to your email</p>
+          <p className="text-sm text-muted-foreground">
+            Enter the 6 digit code sent to your email
+          </p>
         </div>
 
-        <Button 
-          className="w-full" 
-          onClick={verifyOtp} 
+        <Button
+          className="w-full"
+          onClick={verifyOtp}
           disabled={emailPending || !isOtpCompleted}
         >
           {emailPending ? (
@@ -82,13 +90,13 @@ const VerifyRequest = () => {
               <Loader2 className="size-4 animate-spin" />
               <span>Loading...</span>
             </>
-          ):(
-              "Verify Account"
+          ) : (
+            "Verify Account"
           )}
         </Button>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default VerifyRequest
+export default VerifyRequest;

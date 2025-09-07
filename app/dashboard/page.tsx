@@ -1,78 +1,39 @@
-import { EmptyState } from "@/components/general/EmptyState";
-import { getAllCourses } from "../data/course/get-all-courses";
-import { getEnrolledCourses } from "../data/user/get-enrolled-courses";
-import { PublicCourseCard } from "../(public)/_components/PublicCourseCard";
-import Link from "next/link";
-import { EnrolledCourseCard } from "./_components/EnrolledCourseCard";
-import { CourseProgressCard } from "./_components/CourseProgressCard";
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { useAssignRole } from "@/hooks/use-assign-role";
+import { toast } from "sonner";
 
-const DashboardPage = async() => {
-  const [courses, enrolledCourses] = await Promise.all([
-    getAllCourses(),
-    getEnrolledCourses(),
-  ]);
+export default function DashboardRedirect() {
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
 
-  return (
-    <>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">Enrolled Courses</h1>
-        <p className="text-muted-foreground">
-          Here you can see all the courses you have access to.
-        </p>
-      </div>
+  // Handle pending role assignment
+  useAssignRole();
 
-      {enrolledCourses.length === 0 ? (
-        <EmptyState
-          title="No Courses purchased"
-          description="You have not purchased any courses yet. Purchase a course to access it here."
-          buttonText="Browse Courses"
-          href="/courses"
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {enrolledCourses.map((course) => (
-            <CourseProgressCard key={course.Course.id} data={course} />
-          ))}
-        </div>
-      )}
+  useEffect(() => {
+    if (!isPending) {
+      if (!session?.user) {
+        router.push("/login");
+      } else {
+        // Check if email is verified
+        if (!session.user.emailVerified) {
+          toast.error(
+            "Please verify your email address to access your dashboard."
+          );
+          router.push(`/verify-request?email=${session.user.email}`);
+          return;
+        }
 
-      <section className="mt-10">
-        <div className="flex flex-col gap-2 mb-5">
-          <h1 className="text-3xl font-bold">Available Courses</h1>
-          <p className="text-muted-foreground">
-            Here you can see all the courses you can purchase.
-          </p>
-        </div>
+        const role = session.user.role;
+        if (role === "admin") router.push("/admin");
+        else if (role === "teacher") router.push("/teacher");
+        else if (role === "user") router.push("/user");
+        else router.push("/dashboard");
+      }
+    }
+  }, [session, isPending, router]);
 
-        {courses.filter(
-          (course) =>
-            !enrolledCourses.some(
-              ({ Course: enrolled }) => enrolled.id === course.id
-            )
-        ).length === 0 ? (
-          <EmptyState
-            title="No Courses Available"
-            description="You have already purchased all the courses available."
-            buttonText="Browse Courses"
-            href="/courses"
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses
-              .filter(
-                (course) =>
-                  !enrolledCourses.some(
-                    ({ Course: enrolled }) => enrolled.id === course.id
-                  )
-              )
-              .map((course) => (
-                <PublicCourseCard key={course.id} data={course} />
-              ))}
-          </div>
-        )}
-      </section>
-    </>
-  );
-};
-
-export default DashboardPage;
+  return null;
+}

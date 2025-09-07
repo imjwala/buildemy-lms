@@ -3,11 +3,9 @@
 import * as React from "react";
 import {
   IconCamera,
-  IconChartBar,
   IconDashboard,
   IconFileAi,
   IconFileDescription,
-  IconFolder,
   IconHelp,
   IconListDetails,
   IconSearch,
@@ -16,7 +14,6 @@ import {
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/sidebar/nav-main";
-import { NavSecondary } from "@/components/sidebar/nav-secondary";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
   Sidebar,
@@ -30,89 +27,48 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "@/public/logo.png";
-
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/admin",
-      icon: IconDashboard,
-    },
-    {
-      title: "Courses",
-      url: "/admin/courses",
-      icon: IconListDetails,
-    },
-   
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-};
+import { authClient } from "@/lib/auth-client";
+import { UserSquare } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session, isPending } = authClient.useSession();
+
+  let navMain: any[] = [];
+
+  if (session?.user?.role === "admin") {
+    navMain = [
+      { title: "Dashboard", url: "/admin", icon: IconDashboard },
+      { title: "Courses", url: "/admin/courses", icon: IconListDetails },
+      { title: "Users", url: "/admin/users", icon: IconUsers },
+      { title: "Teachers", url: "/admin/teachers", icon: UserSquare },
+      { title: "Settings", url: "/admin/settings", icon: IconSettings },
+    ];
+  } else if (session?.user?.role === "teacher") {
+    navMain = [
+      { title: "Dashboard", url: "/teacher", icon: IconDashboard },
+      { title: "My Courses", url: "/teacher/courses", icon: IconListDetails },
+      {
+        title: "Add Course",
+        url: "/teacher/courses/create",
+        icon: IconFileDescription,
+      },
+
+      {
+        title: "Settings",
+        url: "/teacher/settings",
+        icon: IconSettings,
+      },
+    ];
+  } else if (session?.user?.role === "user") {
+    navMain = [
+      { title: "Dashboard", url: "/user", icon: IconDashboard },
+      { title: "My Courses", url: "/user/courses", icon: IconListDetails },
+      { title: "Settings", url: "/user/settings", icon: IconSettings },
+    ];
+  } else {
+    navMain = [{ title: "Dashboard", url: "/dashboard", icon: IconDashboard }];
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -132,9 +88,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
+        {!isPending && <NavMain items={navMain} />}
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
