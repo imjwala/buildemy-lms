@@ -55,12 +55,12 @@ export default function Home() {
             <Link href="/courses" className={buttonVariants({ size: "lg" })}>
               Explore Courses
             </Link>
-            <Link
+            {/* <Link
               href="/login"
               className={buttonVariants({ size: "lg", variant: "outline" })}
             >
               Sign In
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>

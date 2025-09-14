@@ -7,25 +7,26 @@ export const courseLevels = ["Beginner", "Intermediate", "Advanced"] as const;
 export const courseStatus = ["Draft", "Published", "Archived"] as const;
 
 export const courseCategories = [
-  "Development",
+  "Ai/Ml",
+  "Art",
   "Bussiness",
+  "Design",
+  "Development",
+  "Education",
+  "Entertainment",
   "Finance",
+  "Food & Drink",
+  "Gaming",
+  "Health & Fitness",
   "It & Software",
+  "Marketing",
+  "Music",
   "Office productivity",
   "Personal Development",
-  "Design",
-  "Marketing",
-  "Health & Fitness",
-  "Education",
-  "Food & Drink",
-  "Travel",
-  "Entertainment",
-  "Sports",
-  "Music",
   "Photography",
+  "Sports",
+  "Travel",
   "Videography",
-  "Art",
-  "Gaming",
 ] as const;
 
 export const courseSchema = z.object({
