@@ -1,32 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { headers } from "next/headers";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const { email, role } = await request.json();
 
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Validate inputs
+    if (!email || !role || (role !== "user" && role !== "teacher")) {
+      return NextResponse.json(
+        { error: "Invalid email or role" },
+        { status: 400 }
+      );
     }
 
-    const { role } = await request.json();
-
-    if (!role || (role !== "user" && role !== "teacher")) {
-      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
-    }
-
-    // Update user role
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { role: role },
+    // Update user role based on email
+    const user = await prisma.user.update({
+      where: { email },
+      data: { role },
     });
 
     return NextResponse.json(
-      { message: "Role assigned successfully" },
+      { message: "Role assigned successfully", user },
       { status: 200 }
     );
   } catch (error) {

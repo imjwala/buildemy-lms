@@ -22,7 +22,7 @@ const UserDetailPage = async ({ params }: UserDetailPageProps) => {
         <Button variant="outline" size="sm" asChild className="w-fit">
           <Link href="/admin/users">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Back to Users</span>
+            {/* <span className="hidden sm:inline">Back to Users</span> */}
             <span className="sm:hidden">Back</span>
           </Link>
         </Button>
@@ -37,7 +37,7 @@ const UserDetailPage = async ({ params }: UserDetailPageProps) => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:gap-6">
         {/* User Profile Card - Responsive column span */}
         <div className="md:col-span-2 xl:col-span-1">
           <div className="sticky top-6">

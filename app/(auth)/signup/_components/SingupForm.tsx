@@ -19,11 +19,29 @@ import {
 } from "@/components/ui/select";
 import { authClient } from "@/lib/auth-client";
 import { checkUserExists } from "@/lib/actions/check-user-exists";
-import { Loader, Loader2, Send, UserPlus } from "lucide-react";
+import { Loader, Loader2, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { FaGithub } from "react-icons/fa";
 import { toast } from "sonner";
+
+// Component to assign GitHub role after redirect
+export const AssignGithubRole = ({ email }: { email: string }) => {
+  useEffect(() => {
+    const pendingRole = localStorage.getItem("pendingRole");
+    if (pendingRole && email) {
+      fetch("/api/auth/assign-role", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, role: pendingRole }),
+      })
+        .then(() => localStorage.removeItem("pendingRole"))
+        .catch(console.error);
+    }
+  }, [email]);
+
+  return null;
+};
 
 export const SignupForm = () => {
   const router = useRouter();
@@ -35,109 +53,30 @@ export const SignupForm = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"user" | "teacher">("user");
 
-  async function signUpWithGithub() {
-    startGithubTransition(async () => {
-      try {
-        // Store role before GitHub signup
-        localStorage.setItem("pendingRole", role);
-
-        // For GitHub, we need to use signIn.social
-        await authClient.signIn.social({
-          provider: "github",
-          callbackURL: "/",
-          fetchOptions: {
-            onSuccess: () => {
-              toast.success(
-                "Account created with Github! You will be redirected..."
-              );
-            },
-            onError: (error: any) => {
-              console.error("GitHub signup error:", error);
-
-              // Handle Better Auth error format for GitHub
-              if (
-                error?.code === "USER_ALREADY_EXISTS" ||
-                error?.message?.includes("USER_ALREADY_EXISTS")
-              ) {
-                toast.error(
-                  "Account already exists. Please try logging in instead."
-                );
-              } else if (
-                error?.code === "GITHUB_ACCOUNT_LINKED" ||
-                error?.message?.includes("GITHUB_ACCOUNT_LINKED")
-              ) {
-                toast.error(
-                  "This GitHub account is already linked to another user."
-                );
-              } else if (error?.message) {
-                toast.error(error.message);
-              } else {
-                toast.error(
-                  "Failed to create account with GitHub. Please try again."
-                );
-              }
-            },
-          },
-        });
-      } catch (error: any) {
-        console.error("GitHub signup error:", error);
-
-        // Handle Better Auth error format for GitHub in catch block
-        if (
-          error?.code === "USER_ALREADY_EXISTS" ||
-          error?.message?.includes("USER_ALREADY_EXISTS")
-        ) {
-          toast.error("Account already exists. Please try logging in instead.");
-        } else if (
-          error?.code === "GITHUB_ACCOUNT_LINKED" ||
-          error?.message?.includes("GITHUB_ACCOUNT_LINKED")
-        ) {
-          toast.error("This GitHub account is already linked to another user.");
-        } else if (error?.message) {
-          toast.error(error.message);
-        } else {
-          toast.error(
-            "Failed to create account with GitHub. Please try again."
-          );
-        }
-      }
-    });
-  }
+  // Email Signup
 
   function signUpWithEmail() {
-    if (!name.trim()) {
-      toast.error("Please enter your name");
-      return;
-    }
+    if (!name.trim()) return toast.error("Please enter your name");
+    if (!email.trim()) return toast.error("Please enter your email");
+    if (!password.trim()) return toast.error("Please enter your password");
 
-    if (!email.trim()) {
-      toast.error("Please enter your email");
-      return;
-    }
-
-    if (!password.trim()) {
-      toast.error("Please enter your password");
-      return;
-    }
-
-    startEmailTransition(async () => {
+    startEmailTransition(async (): Promise<void> => {
       try {
-        const result = await authClient.signUp.email({
-          email: email,
-          password: password,
-          name: name,
+        await authClient.signUp.email({
+          email,
+          password,
+          name,
           fetchOptions: {
-            onSuccess: async () => {
-              // Assign role after successful signup
+            onSuccess: async (): Promise<void> => {
+              // Assign role after signup
               try {
                 await fetch("/api/auth/assign-role", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ role: role }),
+                  body: JSON.stringify({ email, role }),
                 });
               } catch (error) {
                 console.error("Failed to assign role:", error);
-                // Store role in localStorage as fallback
                 localStorage.setItem("pendingRole", role);
               }
 
@@ -148,164 +87,75 @@ export const SignupForm = () => {
             },
             onError: (error: any) => {
               console.error("Email signup error:", error);
-
-              // Handle Better Auth error format
-              if (
-                error?.code === "USER_ALREADY_EXISTS" ||
-                error?.message?.includes("USER_ALREADY_EXISTS") ||
-                error?.message?.includes("User already exists") ||
-                (error?.responseText &&
-                  error.responseText.includes("USER_ALREADY_EXISTS")) ||
-                (error?.responseText &&
-                  error.responseText.includes("User already exists"))
-              ) {
-                toast.error("Email already exists.");
-              } else if (
-                error?.code === "INVALID_EMAIL" ||
-                error?.message?.includes("INVALID_EMAIL")
-              ) {
-                toast.error("Please enter a valid email address.");
-              } else if (
-                error?.code === "WEAK_PASSWORD" ||
-                error?.message?.includes("WEAK_PASSWORD")
-              ) {
-                toast.error(
-                  "Password is too weak. Please choose a stronger password."
-                );
-              } else if (error?.message) {
-                toast.error(error.message);
-              } else {
-                toast.error("Failed to create account. Please try again.");
-              }
+              toast.error(error?.message || "Failed to create account.");
             },
           },
         });
       } catch (error: any) {
         console.error("Email signup error:", error);
-
-        // Handle Better Auth error format in catch block
-        if (
-          error?.code === "USER_ALREADY_EXISTS" ||
-          error?.message?.includes("USER_ALREADY_EXISTS") ||
-          error?.message?.includes("User already exists") ||
-          (error?.responseText &&
-            error.responseText.includes("USER_ALREADY_EXISTS")) ||
-          (error?.responseText &&
-            error.responseText.includes("User already exists"))
-        ) {
-          toast.error("User already exists. Please try logging in instead.");
-        } else if (
-          error?.code === "INVALID_EMAIL" ||
-          error?.message?.includes("INVALID_EMAIL")
-        ) {
-          toast.error("Please enter a valid email address.");
-        } else if (
-          error?.code === "WEAK_PASSWORD" ||
-          error?.message?.includes("WEAK_PASSWORD")
-        ) {
-          toast.error(
-            "Password is too weak. Please choose a stronger password."
-          );
-        } else if (error?.message) {
-          toast.error(error.message);
-        } else {
-          toast.error("Failed to create account. Please try again.");
-        }
+        toast.error(error?.message || "Failed to create account.");
       }
     });
   }
 
-  function signInWithEmailOtp() {
-    if (!email.trim()) {
-      toast.error("Please enter your email");
-      return;
-    }
+  // GitHub Signup
 
-    startEmailTransition(async () => {
+  async function signUpWithGithub() {
+    startGithubTransition(async (): Promise<void> => {
       try {
-        // First check if user exists in database
-        const userExists = await checkUserExists(email);
+        localStorage.setItem("pendingRole", role);
 
+        await authClient.signIn.social({
+          provider: "github",
+          callbackURL: "/",
+        });
+      } catch (error: any) {
+        console.error("GitHub signup error:", error);
+        toast.error(error?.message || "Failed to create account with GitHub.");
+      }
+    });
+  }
+
+ 
+  // Email OTP Sign-in
+ 
+  function signInWithEmailOtp() {
+    if (!email.trim()) return toast.error("Please enter your email");
+
+    startEmailTransition(async (): Promise<void> => {
+      try {
+        const userExists = await checkUserExists(email);
         if (!userExists) {
           toast.error(
-            "No account found with this email address. Please sign up first or try a different email."
+            "No account found with this email. Please sign up first."
           );
           return;
         }
 
-        // If user exists, proceed with sending OTP
         await authClient.emailOtp.sendVerificationOtp({
-          email: email,
+          email,
           type: "sign-in",
           fetchOptions: {
-            onSuccess: () => {
-              toast.success(
-                "Verification email sent! Please check your inbox."
-              );
+            onSuccess: (): void => {
+              toast.success("Verification email sent! Check your inbox.");
               router.push(`/verify-request?email=${email}`);
             },
             onError: (error: any) => {
-              // Extract the actual error from the nested structure
-              const actualError =
-                error?.error || error?.response?.error || error;
-
-              // Handle Better Auth error format
-              if (
-                actualError?.code === "USER_NOT_FOUND" ||
-                actualError?.message?.includes("USER_NOT_FOUND") ||
-                actualError?.message?.includes("User not found")
-              ) {
-                toast.error(
-                  "No account found with this email address. Please sign up first or try a different email."
-                );
-              } else if (
-                actualError?.code === "INVALID_EMAIL" ||
-                actualError?.message?.includes("INVALID_EMAIL")
-              ) {
-                toast.error("Please enter a valid email address.");
-              } else if (actualError?.message) {
-                toast.error(actualError.message);
-              } else {
-                toast.error(
-                  "Unable to send verification email. Please try again or contact support if the issue persists."
-                );
-              }
+              console.error(error);
+              toast.error(error?.message || "Failed to send verification email.");
             },
           },
         });
       } catch (error: any) {
-        // Extract the actual error from the nested structure
-        const actualError = error?.error || error?.response?.error || error;
-
-        // Handle different types of errors
-        if (error instanceof TypeError && error.message.includes("fetch")) {
-          toast.error(
-            "Network error. Please check your connection and try again."
-          );
-        } else if (
-          error instanceof Error &&
-          error.message.includes("Failed to fetch")
-        ) {
-          toast.error("Server is not responding. Please try again later.");
-        } else if (
-          actualError?.code === "USER_NOT_FOUND" ||
-          actualError?.message?.includes("USER_NOT_FOUND") ||
-          actualError?.message?.includes("User not found")
-        ) {
-          toast.error(
-            "No account found with this email address. Please sign up first or try a different email."
-          );
-        } else if (actualError?.message) {
-          toast.error(actualError.message);
-        } else {
-          toast.error(
-            "Unable to send verification email. Please try again or contact support if the issue persists."
-          );
-        }
+        console.error(error);
+        toast.error(error?.message || "Failed to send verification email.");
       }
     });
   }
 
+ 
+  // JSX
+ 
   return (
     <Card>
       <CardHeader>
@@ -343,13 +193,11 @@ export const SignupForm = () => {
         >
           {githubPending ? (
             <>
-              <Loader className="size-4 animate-spin" />
-              <span>Creating account...</span>
+              <Loader className="size-4 animate-spin" /> Creating account...
             </>
           ) : (
             <>
-              <FaGithub className="size-4 mr-2" />
-              Sign up with Github
+              <FaGithub className="size-4 mr-2" /> Sign up with Github
             </>
           )}
         </Button>
@@ -401,13 +249,11 @@ export const SignupForm = () => {
           <Button onClick={signUpWithEmail} disabled={emailPending}>
             {emailPending ? (
               <>
-                <Loader2 className="size-4 animate-spin" />
-                <span>Creating account...</span>
+                <Loader2 className="size-4 animate-spin" /> Creating account...
               </>
             ) : (
               <>
-                <UserPlus className="size-4" />
-                <span>Create Account</span>
+                <UserPlus className="size-4" /> <span>Create Account</span>
               </>
             )}
           </Button>

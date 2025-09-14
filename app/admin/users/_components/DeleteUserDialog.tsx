@@ -55,7 +55,7 @@ export const DeleteUserDialog = ({
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
+        <Button variant="destructive" size="sm" className="cursor-pointer">
           <Trash2 className="h-4 w-4 mr-2" />
           Delete User
         </Button>
@@ -75,7 +75,7 @@ export const DeleteUserDialog = ({
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isPending}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
           >
             {isPending ? (
               <>
