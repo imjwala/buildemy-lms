@@ -35,6 +35,8 @@ import { getCurrentUser } from "@/app/data/user/get-current-user";
 import { EnrollmentButton } from "./_components/EnrollmentButton";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
+import { getRecommendedCourses } from "@/app/data/course/get-recommended-course";
+import { PublicCourseCard } from "../../_components/PublicCourseCard";
 
 interface iAppProps {
   params: Promise<{
@@ -55,6 +57,11 @@ const SlugPage = async ({ params }: iAppProps) => {
 
   // Check if user can enroll (must have "user" role)
   const canEnroll = currentUser?.role === "user";
+
+    const recommendedCourses = await getRecommendedCourses(
+    course.category,
+    course.id
+  );
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 mt-5">
@@ -189,6 +196,22 @@ const SlugPage = async ({ params }: iAppProps) => {
             ))}
           </div>
         </div>
+         {/*  Recommended Courses */}
+        {/* Recommended Courses */}
+        {recommendedCourses.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-3xl font-semibold tracking-tight mb-6">
+              Recommended Courses
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+              {recommendedCourses.map((rec) => (
+                <PublicCourseCard key={rec.id} data={rec} />
+              ))}
+            </div>
+          </div>
+        )}
+
 
         {/* Course Owner Enrollment Statistics */}
         {enrollmentData?.isOwner && (
@@ -330,7 +353,10 @@ const SlugPage = async ({ params }: iAppProps) => {
             )}
           </div>
         )}
+
+
       </div>
+      
 
       {/* Enrollment Card */}
       <div className="order-2 lg:col-span-1">
