@@ -5,12 +5,32 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { adminGetRecentCourses } from "../data/admin/admin-get-recent-courses";
 import { EmptyState } from "@/components/general/EmptyState";
-import { AdminCourseCard, AdminCourseCardSkeleton } from "./courses/_components/AdminCourseCard";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import {
+  AdminCourseCard,
+  AdminCourseCardSkeleton,
+} from "./courses/_components/AdminCourseCard";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Suspense } from "react";
-
+import { getCurrentUser } from "../data/user/get-current-user";
+import { redirect } from "next/navigation";
 
 export default async function AdminIndexPage() {
+  // Check if user is authenticated and email is verified
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  if (!user.emailVerified) {
+    redirect(`/verify-request?email=${user.email}`);
+  }
 
   const enrollmentData = await adminGetEnrollmentStats();
 
@@ -18,13 +38,11 @@ export default async function AdminIndexPage() {
     <>
       <SectionCards />
 
-      <ChartAreaInteractive data={enrollmentData} />    
+      <ChartAreaInteractive data={enrollmentData} />
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            Recent Courses
-          </h2>
+          <h2 className="text-xl font-semibold">Recent Courses</h2>
           <Link
             className={buttonVariants({
               variant: "outline",
@@ -40,22 +58,20 @@ export default async function AdminIndexPage() {
         </Suspense>
       </div>
     </>
-  )
+  );
 }
 
-
-export const RenderRecentCourses = async() => {
-  
+export const RenderRecentCourses = async () => {
   const data = await adminGetRecentCourses();
-  if(data.length === 0) {
+  if (data.length === 0) {
     return (
-      <EmptyState 
+      <EmptyState
         buttonText="Create a new Course"
         description="You haven't created any courses yet. Create some to see them here."
         title="You dont have any Courses yet!"
         href="/admin/courses/create"
       />
-    )
+    );
   }
 
   return (
@@ -78,16 +94,17 @@ export const RenderRecentCourses = async() => {
         <CarouselNext />
       </Carousel>
     </div>
-  )
-}
+  );
+};
 
-export const RenderRecentCoursesSkeletonLayout = async() => {
+export const RenderRecentCoursesSkeletonLayout = async () => {
   return (
     <div className="relative px-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {Array.from({ length: 2 }).map((_, index) => (
-          <AdminCourseCardSkeleton key={index} />  
+          <AdminCourseCardSkeleton key={index} />
         ))}
       </div>
     </div>
-)}
+  );
+};

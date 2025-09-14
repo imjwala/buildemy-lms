@@ -1,0 +1,18 @@
+# Should be pre-defined for esewa sandbox testing.
+
+Esewa-sandbox:
+  id: 9806800001
+  password: Nepal@123
+  otp: 123456
+
+# First set of credentials
+Stripe:
+  Card Number: 4242424242424242
+  Expiry Date: 12/34
+  CVC: 123
+
+# Second set of credentials
+Stripe:
+  Card Number: 4000056655665556
+  Expiry Date: 12/30
+  CVC: 132

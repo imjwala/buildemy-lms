@@ -1,31 +1,18 @@
-env configuration
+# Buildemy – The Future of Online Education
 
-BETTER_AUTH_SECRET=
-BETTER_AUTH_URL=
+**Elevate Your Learning Experience**  
 
-DATABASE_URL=postgresql://neondb_owner:
+Buildemy is a modern, interactive learning platform designed to transform the way people learn online. It empowers educators to create engaging courses while providing students with an immersive, seamless learning journey.  
 
-AUTH_GITHUB_CLIENT_ID=
-AUTH_GITHUB_SECRET=
+### For Students
+- **Discover & Learn**: Explore a wide range of high-quality courses crafted by industry experts. Learn anytime, anywhere, at your own pace.  
+- **Interactive Experience**: Engage with quizzes, assessments, and interactive content designed to reinforce learning and make education fun.  
+- **Track Your Progress**: Monitor your achievements with personalized dashboards and detailed analytics to see how far you’ve come.  
+- **Join a Community**: Connect with instructors, peers, and professionals to share knowledge, get support, and collaborate on projects.  
 
-ARCJET_KEY=
+### For Educators
+- **Create & Share Courses**: Build comprehensive, engaging courses using an intuitive course creation interface.  
+- **Reach Students Globally**: Publish courses for students around the world and grow your teaching impact.  
+- **Monetize Expertise**: Offer your courses for purchase and earn from your knowledge while helping learners achieve their goals.  
 
-AWS_ACCESS_KEY_ID=tigris
-
-AWS_SECRET_ACCESS_KEY=tigris
-
-AWS_ENDPOINT_URL_S3=https://fly.storage.tigris.dev
-
-AWS_ENDPOINT_URL_IAM=https://iam.storage.dev
-
-AWS_REGION=auto
-
-NEXT_PUBLIC_S3_BUCKET_NAME_IMAGES=buildemy-lmsbucket
-
-STRIPE_SECRET_KEY=
-
-STRIPE_WEBHOOK_SECRET=
-
-SMTP_USER=gmail
-
-SMTP_PASS=app-password
+Buildemy bridges the gap between traditional learning and modern technology, making education accessible, interactive, and rewarding for everyone.

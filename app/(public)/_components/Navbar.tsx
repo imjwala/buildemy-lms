@@ -8,18 +8,69 @@ import { authClient } from "@/lib/auth-client";
 import { buttonVariants } from "@/components/ui/button";
 import { UserDropdown } from "./UserDropdown";
 
+// Navigation item type
+interface NavigationItem {
+  name: string;
+  href: string;
+}
+
+// Base navigation items for all users
+const baseNavigationItems: NavigationItem[] = [
+  {
+    name: "Home",
+    href: "/",
+  },
+  {
+    name: "Courses",
+    href: "/courses",
+  },
+];
+
+// Role-specific navigation items
+const getRoleBasedNavigation = (role: string | undefined): NavigationItem[] => {
+  switch (role) {
+    case "admin":
+      return [
+        ...baseNavigationItems,
+        {
+          name: "Admin Dashboard",
+          href: "/admin",
+        },
+      ];
+    case "teacher":
+      return [
+        ...baseNavigationItems,
+        {
+          name: "Teacher Dashboard",
+          href: "/teacher",
+        },
+      ];
+    case "user":
+      return [
+        ...baseNavigationItems,
+        {
+          name: "My Dashboard",
+          href: "/user",
+        },
+      ];
+    default:
+      return [
+        ...baseNavigationItems,
+        {
+          name: "Dashboard",
+          href: "/dashboard",
+        },
+      ];
+  }
+};
+
 export const Navbar = () => {
   const { data: session, isPending } = authClient.useSession();
 
-  // Decide dashboard link based on user role
-  const dashboardLink =
-    session?.user?.role === "admin" ? "/admin" : "/dashboard";
-
-  const navigationItems = [
-    { name: "Home", href: "/" },
-    { name: "Courses", href: "/courses" },
-    { name: "Dashboard", href: dashboardLink },
-  ];
+  // Get navigation items based on user role
+  const roleBasedNavigation = getRoleBasedNavigation(
+    session?.user?.role ?? undefined
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full border bg-background/95 backdrop-blur-[backdrop-filter]:bg-background/60">
@@ -29,10 +80,10 @@ export const Navbar = () => {
           <span className="font-bold">Buildemy.</span>
         </Link>
 
-        {/* desktop navigation */}
+        {/* desktop navigation*/}
         <nav className="hidden md:flex md:flex-1 md:items-center md:justify-between">
           <div className="flex items-center space-x-2">
-            {navigationItems.map((item) => (
+            {roleBasedNavigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
@@ -58,6 +109,7 @@ export const Navbar = () => {
                     ? session?.user.name
                     : session?.user.email.split("@")[0]
                 }
+                role={session?.user?.role ?? undefined}
               />
             ) : (
               <>
