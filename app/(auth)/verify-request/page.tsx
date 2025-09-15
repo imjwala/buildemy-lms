@@ -35,7 +35,7 @@ const VerifyRequest = () => {
         fetchOptions: {
           onSuccess: () => {
             toast.success("Email Verified! You can now access your dashboard.");
-            router.push("/dashboard");
+            router.push("/");
           },
           onError: (error) => {
             toast.error("Error verifying email/OTP");
