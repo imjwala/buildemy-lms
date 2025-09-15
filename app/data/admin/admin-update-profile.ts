@@ -7,7 +7,8 @@ import { revalidatePath } from "next/cache";
 
 export const adminUpdateProfile = async (data: {
   name: string;
-  image?: string;
+  filekey?: string;
+  imageUrl?: string;
 }): Promise<ApiResponse> => {
   const session = await requireAdmin();
 
@@ -20,6 +21,13 @@ export const adminUpdateProfile = async (data: {
       };
     }
 
+    // Normalize image: prefer imageUrl > filekey > null
+    const finalImage = data.imageUrl
+      ? data.imageUrl
+      : data.filekey
+      ? data.filekey
+      : null;
+
     // Update admin profile
     await prisma.user.update({
       where: {
@@ -27,12 +35,12 @@ export const adminUpdateProfile = async (data: {
       },
       data: {
         name: data.name.trim(),
-        image: data.image || null,
+        image: finalImage,
         updatedAt: new Date(),
       },
     });
 
-    // Revalidate admin paths
+    
     revalidatePath("/admin");
     revalidatePath("/admin/settings");
 
