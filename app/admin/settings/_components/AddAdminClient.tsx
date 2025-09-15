@@ -16,9 +16,9 @@ export const AddAdminClient = ({ initialAdmins }: AddAdminClientProps) => {
   const [admins, setAdmins] = useState(initialAdmins);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const handleAddSuccess = () => {
-    // Refresh the page to get updated data
-    window.location.reload();
+  const handleAddSuccess = (newAdmin: AdminAdminType) => {
+    // Immediately update local state
+    setAdmins((prev) => [newAdmin, ...prev]);
   };
 
   return (
@@ -50,7 +50,7 @@ export const AddAdminClient = ({ initialAdmins }: AddAdminClientProps) => {
       <AddNewAdminModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={handleAddSuccess}
+        onSuccess={handleAddSuccess} 
       />
     </>
   );

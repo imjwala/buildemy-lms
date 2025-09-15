@@ -26,11 +26,12 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { adminCreateAdmin } from "@/app/data/admin/admin-create-admin";
+import { AdminAdminType } from "@/app/data/admin/admin-get-admins";
 
 interface AddNewAdminModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (newAdmin: AdminAdminType) => void;
 }
 
 export const AddNewAdminModal = ({
@@ -42,12 +43,7 @@ export const AddNewAdminModal = ({
 
   const form = useForm<AddAdminSchemaType>({
     resolver: zodResolver(addAdminSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
+    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
   });
 
   const onSubmit = (values: AddAdminSchemaType) => {
@@ -65,11 +61,21 @@ export const AddNewAdminModal = ({
         return;
       }
 
-      if (result.status === "success") {
+      if (result.status === "success" && result.admin) {
         toast.success(result.message);
-        onClose();
-        form.reset();
-        onSuccess?.();
+        onClose(); // close modal
+        form.reset(); // reset form
+
+        // Pass the newly created admin to parent
+        onSuccess?.({
+          id: result.admin.id,
+          name: result.admin.name,
+          email: result.admin.email,
+          createdAt: new Date(result.admin.createdAt),
+          updatedAt: new Date(result.admin.updatedAt),
+          image: result.admin.image || "",
+          role: result.admin.role || "admin",
+        });
       } else if (result.status === "error") {
         toast.error(result.message);
       }
@@ -103,17 +109,12 @@ export const AddNewAdminModal = ({
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter admin name"
-                      {...field}
-                      disabled={isPending}
-                    />
+                    <Input {...field} placeholder="Enter admin name" disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="email"
@@ -121,18 +122,12 @@ export const AddNewAdminModal = ({
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Enter admin email"
-                      {...field}
-                      disabled={isPending}
-                    />
+                    <Input {...field} type="email" placeholder="Enter admin email" disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="password"
@@ -140,18 +135,12 @@ export const AddNewAdminModal = ({
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter password"
-                      {...field}
-                      disabled={isPending}
-                    />
+                    <Input {...field} type="password" placeholder="Enter password" disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -159,12 +148,7 @@ export const AddNewAdminModal = ({
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Confirm password"
-                      {...field}
-                      disabled={isPending}
-                    />
+                    <Input {...field} type="password" placeholder="Confirm password" disabled={isPending} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,12 +156,7 @@ export const AddNewAdminModal = ({
             />
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={isPending}
-              >
+              <Button type="button" variant="outline" onClick={handleClose} disabled={isPending}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>

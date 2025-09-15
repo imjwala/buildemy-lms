@@ -1,3 +1,5 @@
+import { env } from "./env";
+
 export const generateOTPEmailTemplate = (otp: string, email: string) => {
   return `
 <!DOCTYPE html>
@@ -463,6 +465,46 @@ export const generateWelcomeEmailTemplate = (name: string, email: string) => {
             </p>
         </div>
     </div>
+</body>
+</html>
+  `;
+};
+export const generateAdminCredentialsEmail = (name: string, email: string, password: string) => {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Admin Account - Buildemy</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .header { text-align: center; padding-bottom: 20px; }
+    .header h1 { color: #10b981; }
+    .content p { font-size: 16px; margin-bottom: 16px; }
+    .credentials { background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0; font-family: monospace; }
+    .cta-button { display: inline-block; background: #667eea; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Welcome to Buildemy Admin!</h1>
+    </div>
+    <div class="content">
+      <p>Hello ${name},</p>
+      <p>Your admin account has been created. Use the credentials below to log in and manage the platform:</p>
+      <div class="credentials">
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Password:</strong> ${password}</p>
+      </div>
+      <p>For security, please change your password after logging in for the first time.</p>
+      <p style="text-align:center;">
+        <a href="${env.BETTER_AUTH_URL}/login" class="cta-button">Login Now</a>
+      </p>
+    </div>
+  </div>
 </body>
 </html>
   `;
