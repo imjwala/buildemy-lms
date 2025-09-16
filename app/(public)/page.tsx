@@ -17,10 +17,10 @@ const features: FeatureProps[] = [
     icon: "📚",
   },
   {
-    title: "Interactive Learning",
+    title: "Local Payment Support",
     description:
-      "Engage with interactive content, quizzes, and assessments to enhance your learning experience.",
-    icon: "🎮",
+      "Support smooth transactions with Nepalese payment gateways (Esewa).",
+    icon: "💰",
   },
   {
     title: "Progress Tracking",
@@ -29,10 +29,10 @@ const features: FeatureProps[] = [
     icon: "📊",
   },
   {
-    title: "Community Support",
+    title: "Security",
     description:
-      "Connect with fellow learners, instructors, and industry experts for peer-to-peer support and collaboration.",
-    icon: "👥",
+      "Offers robust authentication mechanisms to ensure only authorized users can access the platform.",
+    icon: "🔒",
   },
 ];
 
@@ -45,7 +45,7 @@ export default function Home() {
             Buildemy-The Future of Online Education
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-            Elevate your Learning Experience
+            Elevate your <span className="text-blue-600">Learning</span> Experience
           </h1>
           <p className="max-w-[700px] text-muted-foreground text-center md:text-xl">
             Discover a new way to learn with our modern, interactive learning
@@ -71,7 +71,7 @@ export default function Home() {
             <CardHeader>
               <div className="text-4xl mb-4">{feature.icon}</div>
               <CardTitle>{feature.title}</CardTitle>
-              <CardContent>
+              <CardContent className="px-1">
                 <p className="text-muted-foreground">{feature.description}</p>
               </CardContent>
             </CardHeader>

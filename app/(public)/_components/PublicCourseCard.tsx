@@ -4,7 +4,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useConstructUrl } from "@/hooks/use-construct-url"
-import { School, TimerIcon } from "lucide-react"
+import { DollarSign, School, TimerIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -47,6 +47,10 @@ export const PublicCourseCard = ({data}: iAppProps) => {
           <div className="flex items-center gap-x-2">
             <School className="size-6 p-1 rounded-md text-primary bg-primary/10 "/>
             <p className="text-sm text-muted-foreground">{data.category}</p>
+          </div>
+          <div className="flex items-center gap-x-2">
+            <DollarSign className="size-6 p-1 rounded-md text-primary bg-primary/10 "/>
+            <p className="text-sm text-muted-foreground">{data.price}</p>
           </div>
         </div>
 
