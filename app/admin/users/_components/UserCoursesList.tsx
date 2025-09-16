@@ -166,7 +166,7 @@ export const UserCoursesList = ({ user }: UserCoursesListProps) => {
                       </Link>
                     </Button>
                   )} */}
-                  <Button
+                  {/* <Button
                     variant="outline"
                     size="sm"
                     asChild
@@ -177,7 +177,7 @@ export const UserCoursesList = ({ user }: UserCoursesListProps) => {
                       <span className="hidden sm:inline">Manage</span>
                       <span className="sm:hidden">Manage</span>
                     </Link>
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             );
