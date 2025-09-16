@@ -302,7 +302,7 @@ export const Uploader = ({
       fileTypeAccepted === "video" ? { "video/*": [] } : { "image/*": [] },
     maxFiles: 1,
     multiple: false,
-    maxSize: fileTypeAccepted === "image" ? 5 * 1024 * 1024 : 10 * 1024 * 1024,
+    maxSize: fileTypeAccepted === "image" ? 5 * 1024 * 1024 : 20 * 1024 * 1024,
     onDropRejected: rejectedFiles,
     disabled: fileState.uploading || !!fileState.objectUrl,
   });
