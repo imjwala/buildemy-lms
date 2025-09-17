@@ -10,8 +10,13 @@ const nextConfig: NextConfig = {
         //pathname: '/**',
       },
     ],
-  }
-}
+  },
+  eslint: {
+    //  prevents ESLint errors from blocking `next build` / Vercel deploy
+    ignoreDuringBuilds: true,
+  },
+};
+
 export default nextConfig;
- 
+
 

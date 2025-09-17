@@ -1,19 +1,12 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
-import z from "zod";
+import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3 } from "@/lib/S3Client";
 import { fixedWindow } from "arcjet";
 import arcjet from "@/lib/arcjet";
 import { requireUser } from "@/app/data/user/require-user";
-
-export const fileUploadSchema = z.object({
-  fileName: z.string().min(1, { message: "File name is required" }),
-  contentType: z.string().min(1, { message: "Content type is required" }),
-  size: z.number().min(1, { message: "Size is required" }),
-  isImage: z.boolean(),
-});
 
 const aj = arcjet.withRule(
   fixedWindow({
@@ -24,25 +17,31 @@ const aj = arcjet.withRule(
 );
 
 export async function POST(request: Request) {
+  // Require user session
   const session = await requireUser();
 
   try {
+    // Rate limiting with Arcjet
     const decision = await aj.protect(request, {
       fingerprint: session.id,
     });
 
     if (decision.isDenied()) {
       return NextResponse.json(
-        {
-          error: "You are not allowed to perform this action",
-        },
-        {
-          status: 429,
-        }
+        { error: "You are not allowed to perform this action" },
+        { status: 429 }
       );
     }
 
     const body = await request.json();
+
+    // Define schema inside POST to avoid Next.js export issues
+    const fileUploadSchema = z.object({
+      fileName: z.string().min(1, { message: "File name is required" }),
+      contentType: z.string().min(1, { message: "Content type is required" }),
+      size: z.number().min(1, { message: "Size is required" }),
+      isImage: z.boolean(),
+    });
 
     const validation = fileUploadSchema.safeParse(body);
 
@@ -55,7 +54,7 @@ export async function POST(request: Request) {
 
     const { fileName, contentType, size } = validation.data;
 
-    // Validate that it's an image file
+    // Only allow image files
     if (!contentType.startsWith("image/")) {
       return NextResponse.json(
         { error: "Only image files are allowed for profile pictures" },
@@ -63,7 +62,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate file size (max 5MB for profile pictures)
+    // Limit file size to 5MB
     if (size > 5 * 1024 * 1024) {
       return NextResponse.json(
         { error: "File size must be less than 5MB" },
@@ -71,6 +70,7 @@ export async function POST(request: Request) {
       );
     }
 
+    // Generate unique key for S3
     const uniqueKey = `user-avatars/${session.id}/${uuidv4()}-${fileName}`;
 
     const command = new PutObjectCommand({
@@ -80,25 +80,20 @@ export async function POST(request: Request) {
       Key: uniqueKey,
     });
 
+    // Generate presigned URL
     const presignedUrl = await getSignedUrl(S3, command, {
       expiresIn: 360,
     });
 
-    const response = {
+    return NextResponse.json({
       presignedUrl,
       key: uniqueKey,
-    };
-
-    return NextResponse.json(response);
+    });
   } catch (error) {
     console.error("Error uploading file", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "An unknown error occurred",
-      },
+      { error: error instanceof Error ? error.message : "An unknown error occurred" },
       { status: 500 }
     );
   }
 }
-

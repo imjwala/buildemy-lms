@@ -1,8 +1,7 @@
 import { getCurrentUser } from "@/app/data/user/get-current-user";
-import { updateUserProfile } from "@/app/data/user/update-profile";
-import { deleteUserAccount } from "@/app/data/user/delete-account";
 import { UserProfileForm } from "./_components/UserProfileForm";
 import { ProfilePreview } from "./_components/ProfilePreview";
+import { safeUpdateUserProfile, safeDeleteUserAccount } from "@/app/action/user-action";
 
 const UserSettingsPage = async () => {
   const currentUser = await getCurrentUser();
@@ -31,8 +30,8 @@ const UserSettingsPage = async () => {
         <div className="lg:col-span-2">
           <UserProfileForm
             user={currentUser}
-            updateProfile={updateUserProfile}
-            deleteAccount={deleteUserAccount}
+            updateProfile={safeUpdateUserProfile}
+            deleteAccount={safeDeleteUserAccount}
           />
         </div>
 

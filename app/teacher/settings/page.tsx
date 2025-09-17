@@ -1,20 +1,13 @@
 import { getCurrentTeacher } from "@/app/data/teacher/get-current-teacher";
-import { updateTeacherProfile } from "@/app/data/teacher/update-teacher-profile";
-import { deleteTeacherAccount } from "@/app/data/teacher/delete-teacher-account";
 import { TeacherProfileForm } from "./_components/TeacherProfileForm";
 import { TeacherProfilePreview } from "./_components/TeacherProfilePreview";
+import { safeUpdateTeacherProfile, safeDeleteTeacherAccount } from "@/app/action/teacher-action"
 
 const TeacherSettingsPage = async () => {
   const currentTeacher = await getCurrentTeacher();
 
   if (!currentTeacher) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <h1 className="text-2xl font-bold text-muted-foreground">
-          Please sign in as a teacher to access settings
-        </h1>
-      </div>
-    );
+    return <div> Please sign in as a teacher to access settings </div>;
   }
 
   return (
@@ -27,16 +20,14 @@ const TeacherSettingsPage = async () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
-        {/* Profile Information */}
         <div className="lg:col-span-2">
           <TeacherProfileForm
             teacher={currentTeacher}
-            updateProfile={updateTeacherProfile}
-            deleteAccount={deleteTeacherAccount}
+            updateProfile={safeUpdateTeacherProfile}
+            deleteAccount={safeDeleteTeacherAccount}
           />
         </div>
 
-        {/* Profile Preview */}
         <div className="lg:col-span-1">
           <div className="sticky top-6">
             <TeacherProfilePreview teacher={currentTeacher} />

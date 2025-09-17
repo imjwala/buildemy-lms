@@ -4,11 +4,10 @@ import { BookX } from "lucide-react";
 
 interface iAppProps {
   params: Promise<{ slug: string }>;
-  children: React.ReactNode;
 }
 
-const CourseSlugRoute = async ({ params, children }: iAppProps) => {
-  const { slug } = await params;
+const CourseSlugRoute = async ({ params }: iAppProps) => {
+  const { slug } =  await params;
   const courseData = await getCourseSidebarData(slug);
 
   if (!courseData?.course) {

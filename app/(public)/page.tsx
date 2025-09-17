@@ -45,7 +45,8 @@ export default function Home() {
             Buildemy-The Future of Online Education
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-            Elevate your <span className="text-blue-600">Learning</span> Experience
+            Elevate your <span className="text-blue-600">Learning</span>{" "}
+            Experience
           </h1>
           <p className="max-w-[700px] text-muted-foreground text-center md:text-xl">
             Discover a new way to learn with our modern, interactive learning
