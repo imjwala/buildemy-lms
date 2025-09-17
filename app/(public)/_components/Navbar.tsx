@@ -7,6 +7,8 @@ import { ThemeToggle } from "@/components/themeToggle";
 import { authClient } from "@/lib/auth-client";
 import { buttonVariants } from "@/components/ui/button";
 import { UserDropdown } from "./UserDropdown";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 // Navigation item type
 interface NavigationItem {
@@ -16,14 +18,8 @@ interface NavigationItem {
 
 // Base navigation items for all users
 const baseNavigationItems: NavigationItem[] = [
-  {
-    name: "Home",
-    href: "/",
-  },
-  {
-    name: "Courses",
-    href: "/courses",
-  },
+  { name: "Home", href: "/" },
+  { name: "Courses", href: "/courses" },
 ];
 
 // Role-specific navigation items
@@ -32,40 +28,26 @@ const getRoleBasedNavigation = (role: string | undefined): NavigationItem[] => {
     case "admin":
       return [
         ...baseNavigationItems,
-        {
-          name: "Admin Dashboard",
-          href: "/admin",
-        },
+        { name: "Admin Dashboard", href: "/admin" },
       ];
     case "teacher":
       return [
         ...baseNavigationItems,
-        {
-          name: "Teacher Dashboard",
-          href: "/teacher",
-        },
+        { name: "Teacher Dashboard", href: "/teacher" },
       ];
     case "user":
-      return [
-        ...baseNavigationItems,
-        {
-          name: "My Dashboard",
-          href: "/user",
-        },
-      ];
+      return [...baseNavigationItems, { name: "My Dashboard", href: "/user" }];
     default:
       return [
         ...baseNavigationItems,
-        {
-          name: "Dashboard",
-          href: "/dashboard",
-        },
+        { name: "Dashboard", href: "/dashboard" },
       ];
   }
 };
 
 export const Navbar = () => {
   const { data: session, isPending } = authClient.useSession();
+  const [isOpen, setIsOpen] = useState(false);
 
   // Get navigation items based on user role
   const roleBasedNavigation = getRoleBasedNavigation(
@@ -73,14 +55,15 @@ export const Navbar = () => {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border bg-background/95 backdrop-blur-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex min-h-16 items-center mx-auto px-4 md:px-6 lg:px-8">
+        {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 mr-4">
           <Image src={Logo} alt="Logo" className="size-9" />
           <span className="font-bold">Buildemy</span>
         </Link>
 
-        {/* desktop navigation*/}
+        {/* desktop navigation */}
         <nav className="hidden md:flex md:flex-1 md:items-center md:justify-between">
           <div className="flex items-center space-x-2">
             {roleBasedNavigation.map((item) => (
@@ -96,7 +79,6 @@ export const Navbar = () => {
 
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-
             {isPending ? null : session ? (
               <UserDropdown
                 email={session.user.email}
@@ -126,7 +108,64 @@ export const Navbar = () => {
             )}
           </div>
         </nav>
+
+        {/* hamburger for nav links) */}
+        <div className="flex items-center space-x-3 md:hidden ml-auto">
+          <ThemeToggle />
+          {isPending ? null : session ? (
+            <UserDropdown
+              email={session.user.email}
+              image={
+                session?.user.image ??
+                `https://avatar.vercel.sh/rauchg/${session?.user.email}`
+              }
+              name={
+                session?.user.name && session?.user.name.length > 0
+                  ? session?.user.name
+                  : session?.user.email.split("@")[0]
+              }
+              role={session?.user?.role ?? undefined}
+            />
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className={buttonVariants({ variant: "secondary", size: "sm" })}
+              >
+                Login
+              </Link>
+              <Link href="/signup" className={buttonVariants({ size: "sm" })}>
+                Get Started
+              </Link>
+            </>
+          )}
+
+          <button
+            className="inline-flex items-center justify-center p-2 rounded-md hover:bg-accent focus:outline-none"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile menu */}
+      {isOpen && (
+        <div className="md:hidden border-t bg-background">
+          <div className="flex flex-col space-y-2 p-4">
+            {roleBasedNavigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className="text-sm font-medium transition-colors hover:text-primary"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </header>
   );
 };
