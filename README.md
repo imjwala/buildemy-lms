@@ -2,6 +2,8 @@
 
 **Elevate Your Learning Experience**  
 
+🔗 **Live Demo**: [https://buildemy.vercel.app](https://buildemy.vercel.app)
+
 Buildemy is a modern, interactive learning platform designed to transform the way people learn online. It empowers educators to create engaging courses while providing students with an immersive, seamless learning journey.  
 
 ### For Students
